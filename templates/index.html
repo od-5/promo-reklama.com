@@ -7,7 +7,7 @@
   <meta name="description" content="">
   <meta name="format-detection" content="telephone=no">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+{#  <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />#}
   <title>{{ SETUP.title|default:'Проведем опрос, анкетирование, промо-акцию в любой точке России.' }}</title>
   <link media="all" rel="stylesheet" type="text/css" href="{% static 'css/all.css' %}" />
   <link media="all" rel="stylesheet" type="text/css" href="{% static 'css/owl.carousel.css' %}" />
@@ -23,6 +23,7 @@
   <!--[if lt IE 9]><script type="text/javascript" src="{% static 'js/html5.js' %}"></script><![endif]-->
   <!--[if lt IE 9]><script type="text/javascript" src="{% static 'js/placeholder.js' %}"></script><![endif]-->
   <script src="{% static 'js/all.js' %}"></script>
+  {{ SETUP.top_js|safe|default:'' }}
 </head>
 <body>
   <div id="contact-popup" class="contact-popup">
@@ -470,5 +471,6 @@
       </div>
     </div>
   </div>
+{{ SETUP.bottom_js|safe|default:'' }}
 </body>
 </html>
