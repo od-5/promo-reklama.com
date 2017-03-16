@@ -1,11 +1,17 @@
 $(document).ready(function () {
 
   // fancybox
-  $('.fancybox').fancybox();
+  jQuery('.fancybox').fancybox();
+  // popup close
+  $(document).on('click','.popup-close',function(e){
+    e.preventDefault();
+    $.fancybox.close();
+  });
+
   $(".input[name='phone']").mask("+7 (999) 999-99-99");
-  $('form').each(function(){
+  $('.js-ticket-form').each(function(){
     $(this).validate({
-      rules: {
+         rules: {
         name: {
           required: true,
           minlength: 3
@@ -20,15 +26,52 @@ $(document).ready(function () {
         }
       }
     });
+		$(this).submit(function(e) {
+			console.log($(this));
+			if ($(this).find('input[name=city]').val() == '') {
+				e.preventDefault();
+				$('.city-link').trigger('click');
+			}
+		});
   });
-  $('form').ajaxForm({
+	$('.js-ticket-form').ajaxForm({
       success: function(data){
         if (data.success) {
             location.replace("/thnx/");
         }
-        $('form').trigger('reset');
+        $('.js-ticket-form').trigger('reset');
       }
   });
+  // fake-select hidden
+  $(document).on('click', '.city-region-link', function(e){
+    e.preventDefault();
+    if($(this).hasClass('active')){
+      $('.city-region-block').slideUp();
+      $(this).removeClass('active');
+    }else{
+      $('.city-region-block').slideDown();
+      $(this).addClass('active');
+    }
+  });
+  $(document).bind( "mouseup touchend", function(e){
+    var container = $('.fake-select-hidden, .fake-select-link');
+    if (!container.is(e.target) // if the target of the click isn't the container...
+      && container.has(e.target).length === 0) // ... nor a descendant of the container
+    {
+      $('.fake-select-hidden').slideUp();
+      $('.fake-select-link').removeClass('active');
+    }
+  });
+
+  // button info
+  $(document).on('click','.button-data',function(e){
+    e.preventDefault();
+    var data_title = $(this).attr('data-title');
+    var data_theme = $(this).attr('data-theme');
+    $('#popup input[name=theme]').val(data_theme);
+    $('#popup .insert-title').text(data_title);
+  });
+
   // slider
   $('.review-slider .owl-carousel').owlCarousel({
     loop: true,
@@ -37,54 +80,47 @@ $(document).ready(function () {
     dots: false,
     //autoHeight : true,
     navText: [''],
-    autoplay: true
+    autoplay: false
   });
 
-  // price select
-  $(document).on('click','.price-img img',function(){
-    $('.price-img img').removeClass('active');
-    $(this).addClass('active');
-  });
 
-  // header city
-  $(document).on('click','.header-city-link',function(e){
-    e.preventDefault();
-    if($(this).hasClass('active')){
-      $(this).removeClass('active');
-      $('.mask').removeClass('active');
-      $('.city-hidden').slideUp();
-    }else{
-      $(this).addClass('active');
-      $('.mask').addClass('active');
-      $('.city-hidden').slideDown();
-    }
+  //  ввод города
+  $('.input_city').each(function(){
+    $(this).autocomplete({
+      source: function(request, response){
+        // организуем кроссдоменный запрос
+        $.ajax({
+          url: $('.input_city').data('url'),
+          dataType: "json",
+          // параметры запроса, передаваемые на сервер (последний - подстрока для поиска):
+          data:{
+            style: "full",
+            maxRows: 12,
+            name_startsWith: request.term
+          },
+          // обработка успешного выполнения запроса
+          success: function(data){
+            console.log(data);
+            if(data.city_list.length){
+              console.log('OK');
+              $('.city-input-text').hide();
+            }else {
+              console.log('nothing');
+              $('.city-input-text').show();
+            }
+            // приведем полученные данные к необходимому формату и передадим в предоставленную функцию response
+            response($.map(data.city_list, function(item){
+              return{
+                label: item.name,
+                value: item.name
+              }
+            }));
+          }
+        });
+      },
+      minLength: 2
+    });
   });
-  $(document).on('click','.city-hidden-close',function(e){
-    e.preventDefault();
-    $('.header-city-link').removeClass('active');
-    $('.mask').removeClass('active');
-    $('.city-hidden').slideUp();
-  });
-
-  // phone img show
-  $(document).on('click','.info-mid-img',function(e){
-    e.preventDefault();
-    if($(this).hasClass('active')){
-      $(this).removeClass('active');
-    }else{
-      $(this).addClass('active');
-    }
-  });
-  $(document).on('click','.info-mid-show',function(e){
-    e.preventDefault();
-    if($('.info-mid-img').hasClass('active')){
-      $('.info-mid-img').removeClass('active');
-    }else{
-      $('.info-mid-img').addClass('active');
-    }
-  });
-
 
 });
-
 

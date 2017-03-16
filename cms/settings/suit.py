@@ -27,6 +27,7 @@ SUIT_CONFIG = {
         {'label': u'Настройки', 'icon': 'icon-cog', 'models': ('core.setup',)},
         # {'label': u'Заявки', 'icon': 'icon-list-alt', 'models': ('ticket.ticket',)},
         # {'label': u'Продажи', 'icon': 'icon-user', 'models': ('ticket.sale',)},
-        {'label': u'Города', 'icon': 'icon-map-marker', 'models': ('landing.city',)},
+        {'label': u'Города и регионы', 'icon': 'icon-map-marker', 'models': ('landing.country', 'landing.city')},
+        {'label': u'Исполнители', 'icon': 'icon-map-marker', 'models': ('landing.moderator', )},
     ),
 }

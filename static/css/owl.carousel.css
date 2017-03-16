@@ -141,22 +141,20 @@
 }
 .owl-dots {
 	position: absolute;
-	width: 395px;
 	top: 67px;
 	right: 0;
-	margin-right: -516px;
 	text-align: left;
 }
 .owl-dot {
 	display: inline-block;
-	width: 22px;
-	height: 22px;
-	margin: 0 5px;
-	background: url(../images/switcher.png) 0 0 no-repeat;
+	width: 18px;
+	height: 18px;
+	margin: 0 0 0 6px;
+	background: url(../images/pager2.png) 0 0 no-repeat;
 	border-radius: 50%;
 }
 .owl-dot:hover, .owl-dot.active {
-	background: url(../images/switcher.png) 0 -22px no-repeat;
+	background: url(../images/pager2.png) 0 -18px no-repeat;
 }
 /* No Js */
 .no-js .owl-carousel {

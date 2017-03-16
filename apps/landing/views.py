@@ -1,14 +1,16 @@
 # coding=utf-8
 from annoying.decorators import ajax_request
 from annoying.functions import get_object_or_None
+
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, DetailView
 from django.views.generic.base import ContextMixin
 from django_geoip.models import IpRange
 
-from .models import City
+from .models import Country, City, Moderator
 
 __author__ = 'alexy'
 
@@ -30,6 +32,18 @@ class LandingView(TemplateView, CityListMixin):
 class CityDetailView(DetailView, CityListMixin):
     model = City
     template_name = 'index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CityDetailView, self).get_context_data()
+        moderator_qs = Moderator.objects.filter(city=self.object)
+        if moderator_qs.count() == 1 and moderator_qs.first().phone:
+            context.update({
+                'phone': moderator_qs.first().phone
+            })
+        context.update({
+            'moderator_list': moderator_qs
+        })
+        return context
 
 
 def get_client_ip(request):
@@ -53,7 +67,18 @@ def home_view(request):
         city_name = None
     context = {
         'city_list': City.objects.all(),
+        'country_list': Country.objects.all(),
         'location': city_name,
         'ip': ip
     }
     return render(request, 'index.html', context)
+
+
+def set_current_city_from_input(request):
+    if request.POST.get('city'):
+        try:
+            current_city = City.objects.get(name__iexact=request.POST.get('city'))
+            return HttpResponseRedirect(reverse('landing:city', args=(current_city.slug, )))
+        except:
+            pass
+    return HttpResponseRedirect(reverse('landing:index'))

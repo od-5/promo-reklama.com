@@ -7,11 +7,49 @@ from core.base_model import CommonPage
 __author__ = 'alexy'
 
 
+class CountryManager(models.Manager):
+
+    @staticmethod
+    def get_id_list():
+        id_list = [int(i.id) for i in Country.objects.all()]
+        return id_list
+
+
+class CityManager(models.Manager):
+
+    @staticmethod
+    def get_id_list():
+        id_list = [int(i.id) for i in City.objects.all()]
+        return id_list
+
+
+class ModeratorManager(models.Manager):
+
+    @staticmethod
+    def get_id_list():
+        id_list = [int(i.id) for i in Moderator.objects.all()]
+        return id_list
+
+
+class Country(models.Model):
+    class Meta:
+        verbose_name = u'Страна'
+        verbose_name_plural = u'Страны'
+        app_label = 'landing'
+
+    def __unicode__(self):
+        return self.name
+
+    name = models.CharField(max_length=100, verbose_name=u'Название')
+    objects = CountryManager()
+
+
 class City(CommonPage):
     class Meta:
         verbose_name = u'Город'
         verbose_name_plural = u'Города'
         app_label = 'landing'
+        ordering = ['name', ]
 
     def __unicode__(self):
         return self.name
@@ -19,12 +57,26 @@ class City(CommonPage):
     def get_absolute_url(self):
         return reverse('landing:city', args=(self.slug,))
 
+    country = models.ForeignKey(to=Country, verbose_name=u'Страна')
     name = models.CharField(max_length=100, verbose_name=u'Название')
-    second_name = models.CharField(
-        max_length=100, verbose_name=u'Название города в предложном падеже',
-        help_text=u'в Ростове-На-Дону, в Волгограде'
-    )
-    phone = models.CharField(max_length=100, verbose_name=u'Телефон', blank=True, null=True)
-    count = models.PositiveIntegerField(verbose_name=u'Количество экземпляров', blank=True, null=True)
-    price = models.PositiveIntegerField(verbose_name=u'Стоимость, руб', blank=True, null=True)
     slug = models.SlugField(max_length=100, verbose_name=u'URL города')
+    objects = CityManager()
+
+
+class Moderator(models.Model):
+    class Meta:
+        verbose_name = u'Исполнитель'
+        verbose_name_plural = u'Исполнители'
+        app_label = 'landing'
+
+    def __unicode__(self):
+        return self.company
+
+    def id_list(self):
+        return [i.id for i in self.city.all()]
+
+    city = models.ManyToManyField(to=City)
+    company = models.CharField(max_length=256, verbose_name=u'Название')
+    phone = models.CharField(max_length=256, verbose_name=u'телефон', blank=True, null=True)
+    contact = models.TextField(verbose_name=u'контакты', blank=True, null=True)
+    objects = ModeratorManager()

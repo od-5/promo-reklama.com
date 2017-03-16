@@ -35,35 +35,10 @@ def ticket(request):
         'city': city.encode('utf-8')
     }
     data = urllib.urlencode(values)
-    req = urllib2.Request('http://reklamadoma.com/ticket/hanger/', data, headers)
+    req = urllib2.Request('http://reklamadoma.com/ticket/promo/', data, headers)
     response = urllib2.urlopen(req)
     answer = json.load(response)
     if answer['success']:
-        if mail:
-            current_city = get_object_or_None(City, name=city)
-            if current_city:
-                price = current_city.price or '35 000'
-                count = current_city.count or '50 000'
-                if current_city.phone:
-                    phone = current_city.phone
-                else:
-                    if Setup.object.first().phone:
-                        phone = Setup.object.first().phone
-                    else:
-                        phone = None
-                subject = u'Спасибо за заявку на сайте hanger-reklama.com'
-                # msg_plain = render_to_string('email.txt', {'name': name})
-                msg_html = render_to_string('landing/mail.html', {'phone': phone, 'price': price, 'count': count})
-                # try:
-                send_mail(
-                    subject,
-                    msg_html,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [mail, ],
-                    html_message=msg_html,
-                )
-                # except:
-                #     pass
         return {
             'success': True,
             'name': name,
@@ -73,4 +48,23 @@ def ticket(request):
         }
     return {
         'success': False
+    }
+
+
+@csrf_exempt
+@ajax_request
+def find_city(request):
+    if request.GET.get('name_startsWith'):
+        name_startsWith = request.GET.get('name_startsWith')
+        city_list = []
+        city_qs = City.objects.filter(name__icontains=name_startsWith)
+        for city in city_qs:
+            city_list.append({
+                'name': city.name
+            })
+        return {
+            'city_list': city_list
+        }
+    return {
+        'success': True
     }
