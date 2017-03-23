@@ -11,7 +11,7 @@ $(document).ready(function () {
   $(".input[name='phone']").mask("+7 (999) 999-99-99");
   $('.js-ticket-form').each(function(){
     $(this).validate({
-         rules: {
+      rules: {
         name: {
           required: true,
           minlength: 3
@@ -23,14 +23,28 @@ $(document).ready(function () {
         mail: {
           required: true,
           email: true
+        },
+        city: {
+          required: true
         }
       }
     });
 		$(this).submit(function(e) {
-			console.log($(this));
 			if ($(this).find('input[name=city]').val() == '') {
 				e.preventDefault();
-				$('.city-link').trigger('click');
+
+        var form = $(this);
+        var city = form.find('input[name=city]');
+        if (city.val() == '') {
+          e.preventDefault();
+          $('.city-link').trigger('click');
+          $(document).on('click', '#js-city-list a', function(e){
+            e.preventDefault();
+            city.val($(this).data('id'));
+            $.fancybox.close();
+            form.submit();
+          });
+        }
 			}
 		});
   });
@@ -119,6 +133,25 @@ $(document).ready(function () {
         });
       },
       minLength: 2
+    });
+  });
+  $('.city-region-block a').on('click', function(e){
+    e.preventDefault();
+    var id = $(this).data('id');
+    var url = $('.city-region-block').data('url');
+    $.ajax({
+      type: "GET",
+      url: url,
+      data: {
+        region: id
+      },
+      success: function(data){
+        var el = $('#js-city-list');
+        el.html('');
+        for (var i = 0; i < data.length; i++) {
+          el.append('<li><a href="' + data[i]['get_absolute_url'] + '" data-id="' + data[i]['id'] + '">' + data[i]['name'] + '</a></li>');
+        }
+      }
     });
   });
 

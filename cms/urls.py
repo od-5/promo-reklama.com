@@ -8,7 +8,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = patterns(
     '',
-
+    url(r'^api_v1/', include('api.urls', namespace='api')),
     url(r'^ckeditor/', include('ckeditor.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'', include('core.urls')),

@@ -15,6 +15,14 @@ class CountryManager(models.Manager):
         return id_list
 
 
+class RegionManager(models.Manager):
+
+    @staticmethod
+    def get_id_list():
+        id_list = [int(i.id) for i in Region.objects.all()]
+        return id_list
+
+
 class CityManager(models.Manager):
 
     @staticmethod
@@ -44,6 +52,21 @@ class Country(models.Model):
     objects = CountryManager()
 
 
+class Region(models.Model):
+    class Meta:
+        verbose_name = u'Регион'
+        verbose_name_plural = u'Регионы'
+        app_label = 'landing'
+
+    def __unicode__(self):
+        return self.name
+
+    name = models.CharField(max_length=100, verbose_name=u'Название')
+    country = models.ForeignKey(Country, verbose_name=u'Страна')
+
+    objects = RegionManager()
+
+
 class City(CommonPage):
     class Meta:
         verbose_name = u'Город'
@@ -58,6 +81,7 @@ class City(CommonPage):
         return reverse('landing:city', args=(self.slug,))
 
     country = models.ForeignKey(to=Country, verbose_name=u'Страна')
+    region = models.ForeignKey(to=Region, verbose_name=u'Страна', blank=True, null=True)
     name = models.CharField(max_length=100, verbose_name=u'Название')
     slug = models.SlugField(max_length=100, verbose_name=u'URL города')
     objects = CityManager()

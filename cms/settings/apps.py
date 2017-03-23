@@ -11,6 +11,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'annoying',
     'ckeditor',
+    'rest_framework',
     'core',
     'apps.landing',
     'django_cleanup',

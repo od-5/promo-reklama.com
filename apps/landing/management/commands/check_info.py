@@ -7,7 +7,7 @@ from pytils.translit import slugify
 
 from django.core.management.base import BaseCommand, CommandError
 
-from apps.landing.models import Country, City, Moderator
+from apps.landing.models import Country, City, Moderator, Region
 
 __author__ = 'alexy'
 
@@ -24,9 +24,10 @@ class Command(BaseCommand):
         url = 'http://reklamadoma.com/api_promo/%s/'
         country_response = requests.get(url % 'country')
         city_response = requests.get(url % 'city')
+        region_response = requests.get(url % 'region')
         moderator_response = requests.get(url % 'moderator')
-        if country_response.status_code == 200 and city_response.status_code == 200 and \
-                        moderator_response.status_code == 200:
+        if country_response.status_code == 200 and region_response.status_code == 200 and \
+                        city_response.status_code == 200 and moderator_response.status_code == 200:
             country_list = json.loads(country_response.content)
             delete_difference_element([i['id'] for i in country_list], Country)
             for item in country_list:
@@ -38,17 +39,38 @@ class Command(BaseCommand):
                         country.name = item['name']
                         country.save()
                         # print u'id=%s, name=%s' % (country['id'], country['name'])
+            region_list = json.loads(region_response.content)
+            delete_difference_element([i['id'] for i in region_list], Region)
+            for item in region_list:
+                region = get_object_or_None(Region, id=item['id'])
+                if not region:
+                    Region.objects.create(id=item['id'], name=item['name'],
+                                          country=Country.objects.get(pk=item['country']))
+                else:
+                    if region.name != item['name'] or region.country.id != item['country']:
+                        if region.name != item['name']:
+                            region.name = item['name']
+                        if region.country.id != item['country']:
+                            region.country = Country.objects.get(pk=item['country'])
+                    region.save()
             city_list = json.loads(city_response.content)
             delete_difference_element([i['id'] for i in city_list], City)
             for item in city_list:
                 city = get_object_or_None(City, id=item['id'])
                 if not city:
-                    City.objects.create(id=item['id'], name=item['name'],
-                                        country=Country.objects.get(pk=item['country']), slug=slugify(item['name']))
+                    city = City.objects.create(id=item['id'], name=item['name'],
+                                               country=Country.objects.get(pk=item['country']),
+                                               slug=slugify(item['name']))
+                    if item['region']:
+                        city.region = Region.objects.get(pk=item['region'])
+                        city.save()
                 else:
-                    if city.name != item['name']:
-                        city.name = item['name']
-                        city.slug = slugify(item['name'])
+                    if city.name != item['name'] or city.region_id != item['region']:
+                        if city.region_id != item['region']:
+                            city.region = Region.objects.get(pk=item['region'])
+                        if city.name != item['name']:
+                            city.name = item['name']
+                            city.slug = slugify(item['name'])
                         city.save()
             moderator_list = json.loads(moderator_response.content)
             delete_difference_element([i['id'] for i in moderator_list], Moderator)

@@ -10,7 +10,7 @@ from django.views.generic import TemplateView, DetailView
 from django.views.generic.base import ContextMixin
 from django_geoip.models import IpRange
 
-from .models import Country, City, Moderator
+from .models import Country, Region, City, Moderator
 
 __author__ = 'alexy'
 
@@ -22,6 +22,7 @@ class CityListMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         kwargs = super(CityListMixin, self).get_context_data(**kwargs)
         kwargs.update({'city_list': City.objects.all()})
+        kwargs.update({'region_list': Region.objects.all()})
         return kwargs
 
 
@@ -67,6 +68,7 @@ def home_view(request):
         city_name = None
     context = {
         'city_list': City.objects.all(),
+        'region_list': Region.objects.all(),
         'country_list': Country.objects.all(),
         'location': city_name,
         'ip': ip
