@@ -1424,6 +1424,7 @@ label.error {
     .contact-popup {
         display: none;
         width: 300px;
+        width: 300px;
         padding: 20px;
     }
     .city-search {
